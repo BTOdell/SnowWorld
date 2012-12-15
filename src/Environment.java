@@ -95,7 +95,7 @@ public class Environment extends JPanel {
 			Flake flake = it.next();
 			flake.tick();
 			wind.apply(flake);
-			if ((collide = ground.collidesAt(flake.x, flake.y + flake.width / 2)) == 0)
+			if ((collide = ground.collidesAt(flake.x, flake.y + flake.width / 2.0D)) == 0)
 				continue;
 			it.remove();
 			if (collide == 1)
@@ -145,7 +145,7 @@ public class Environment extends JPanel {
 		}
 		
 		private boolean inBounds(double x) {
-			return x >= 0 && x < data.length;
+			return x >= 0.0D && x < (double) data.length;
 		}
 		
 		private void increment(int x, double by) {
@@ -163,59 +163,40 @@ public class Environment extends JPanel {
 		}
 		
 		public void smoothGround() {
+			double minDif = 0.5D;
 			int adjacent;
 			for (int curr = 0; curr < data.length; curr++) {
 				adjacent = curr + 1;
 				if (adjacent < data.length) {
 					if (data[curr].height > data[adjacent].height) {
-						int dif = (int)(((double) Math.abs(data[adjacent].height - data[curr].height)) / 1.5D);
-						decrement(curr, dif);
-						increment(adjacent, dif);
+						double dif = Math.abs(data[adjacent].height - data[curr].height) / 1.5D;
+						if (dif >= minDif) {
+							decrement(curr, dif);
+							increment(adjacent, dif);
+						}
 					}
 				}
 				adjacent = curr - 1;
 				if (adjacent >= 0) {
 					if (data[curr].height > data[adjacent].height) {
-						int dif = (int)(((double) Math.abs(data[adjacent].height - data[curr].height)) / 1.5D);
-						decrement(curr, dif);
-						increment(adjacent, dif);
+						double dif = Math.abs(data[adjacent].height - data[curr].height) / 1.5D;
+						if (dif >= minDif) {
+							decrement(curr, dif);
+							increment(adjacent, dif);
+						}
 					}
 				}
 			}
 		}
 		
 		public void add(Flake flake) {
-			if (!inBounds(flake.x))
-				return;
-			int index = (int) flake.x;
-			double size = flake.getWidth();
-			increment(index, size);
-			if (size >= 3) { // flake is size 3.0 or bigger
-				if (flake.vel < 0) {
-					if (index + 1 < data.length) {
-						increment(index + 1, Methods.random(0D, size / 2.0D));
-					}
-					if (index - 1 >= 0) {
-						increment(index - 1, Methods.random(0D, size / 2.0D));
-					}
-				} else {
-					if (index + 1 < data.length) {
-						increment(index + 1, Methods.random(0D, size / 2.0D));
-					}
-					if (index - 1 >= 0) {
-						increment(index - 1, Methods.random(0D, size / 2.0D));
-					}
-				}
-			} else if (size >= 2) { // flake is size 2.0 or bigger
-				if (flake.vel < 0) {
-					if (index - 1 < data.length) {
-						increment(index - 1, size / 2.0D);
-					}
-				} else {
-					if (index + 1 < data.length) {
-						increment(index + 1, size / 2.0D);
-					}
-				}
+			double flakeRadius = flake.getWidth() / 2.0D;
+			double flakeCenter = flake.x + flakeRadius;
+			double flakeFloor = Math.max(0.0D, Math.floor(flake.x));
+			int max = Math.min(data.length - 1, (int) Math.floor(flake.x + flake.width));
+			for (int i = (int) flakeFloor; i <= max; i++) {
+				double x = (double) i - flakeCenter;
+				increment(i, flake.area(x, x + 1.0D));
 			}
 		}
 		
