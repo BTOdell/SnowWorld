@@ -4,13 +4,15 @@ import java.awt.geom.Rectangle2D;
 public class GroundData {
 	
 	private double[] heightMap = null;
+	private int height;
 	
-	public GroundData(int width) {
-		setSize(width);
+	public GroundData(int width, int height) {
+		setSize(width, height);
 	}
 	
-	public void setSize(int width) {
+	public void setSize(int width, int height) {
 		this.heightMap = new double[width];
+		this.height = height;
 	}
 	
 	private boolean inBounds(double x) {
@@ -26,7 +28,7 @@ public class GroundData {
 	}
 	
 	public int collidesAt(double x, double y) {
-		return inBounds(x) ? (y >= heightMap[(int) x] ? 1 : 0) : (y >= getHeight() ? 2 : 0);
+		return inBounds(x) ? (y >= (height - heightMap[(int) x]) ? 1 : 0) : (y >= this.height ? 2 : 0);
 	}
 	
 	public void smoothGround() {
@@ -35,8 +37,8 @@ public class GroundData {
 		for (int curr = 0; curr < heightMap.length; curr++) {
 			adjacent = curr + 1;
 			if (adjacent < heightMap.length) {
-				if (heightMap[curr].height > heightMap[adjacent].height) {
-					double dif = Math.abs(heightMap[adjacent].height - heightMap[curr].height) / 1.5D;
+				if (heightMap[curr] > heightMap[adjacent]) {
+					double dif = Math.abs(heightMap[adjacent] - heightMap[curr]) / 1.5D;
 					if (dif >= minDif) {
 						decrement(curr, dif);
 						increment(adjacent, dif);
@@ -45,8 +47,8 @@ public class GroundData {
 			}
 			adjacent = curr - 1;
 			if (adjacent >= 0) {
-				if (heightMap[curr].height > heightMap[adjacent].height) {
-					double dif = Math.abs(heightMap[adjacent].height - heightMap[curr].height) / 1.5D;
+				if (heightMap[curr] > heightMap[adjacent]) {
+					double dif = Math.abs(heightMap[adjacent] - heightMap[curr]) / 1.5D;
 					if (dif >= minDif) {
 						decrement(curr, dif);
 						increment(adjacent, dif);
@@ -69,7 +71,7 @@ public class GroundData {
 	
 	public void render(Graphics2D g) {
 		for (int i = 0; i < heightMap.length; i++) {
-			g.fill(heightMap[i]);
+			g.fill(new Rectangle2D.Double(i, height - heightMap[i], 1, heightMap[i]));
 		}
 	}
 	

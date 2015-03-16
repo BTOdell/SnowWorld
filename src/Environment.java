@@ -1,23 +1,16 @@
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import javax.swing.JPanel;
 
 public class Environment {
 	
 	private final LinkedList<Flake> flakes;
 	private final Wind wind;
 	
-	private int width;
-	private int height;
+	private int width = -1;
+	private int height = -1;
 	
 	private GroundData ground = null;
 	
@@ -28,10 +21,14 @@ public class Environment {
 		this.wind = new Wind();
 	}
 	
+	public boolean isSizeSet() {
+		return this.width != -1 && this.height != -1;
+	}
+	
 	public void setSize(int width, int height) {
 		this.width = width;
 		this.height = height;
-		this.ground = new GroundData(width);
+		this.ground = new GroundData(width, height);
 	}
 	
 	public void tick() {
@@ -74,7 +71,7 @@ public class Environment {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, arg2, arg3)
+		g.fillRect(0, 0, width, height);
 		g.setColor(Color.WHITE);
 		try {
 			Iterator<Flake> it = flakes.iterator();
@@ -91,9 +88,8 @@ public class Environment {
 	}
 	
 	private void create(int quantity) {
-		int width = getWidth();
 		while (quantity > 0) {
-			flakes.add(new Flake(width));
+			flakes.add(new Flake(this.width));
 			quantity--;
 		}
 	}
