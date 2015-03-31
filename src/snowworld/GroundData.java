@@ -1,3 +1,5 @@
+package snowworld;
+
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
@@ -60,9 +62,9 @@ public class GroundData {
 	
 	public void add(Flake flake) {
 		double flakeRadius = flake.getWidth() / 2.0D;
-		double flakeCenter = flake.x + flakeRadius;
-		double flakeFloor = Math.max(0.0D, Math.floor(flake.x));
-		int max = Math.min(heightMap.length - 1, (int) Math.floor(flake.x + flake.width));
+		double flakeCenter = flake.getX() + flakeRadius;
+		double flakeFloor = Math.max(0.0D, Math.floor(flake.getX()));
+		int max = Math.min(heightMap.length - 1, (int) Math.floor(flake.getX() + flake.getWidth()));
 		for (int i = (int) flakeFloor; i <= max; i++) {
 			double x = (double) i - flakeCenter;
 			increment(i, flake.area(x, x + 1.0D));

@@ -1,3 +1,5 @@
+package snowworld;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -15,21 +17,26 @@ public class World extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static String VERSION = "3.0";
+	public static String VERSION = "3.5";
 	
-	private static final int NANO_DELAY = 30000000;
+	private static final int NANO_DELAY = 100_000_000;//16_666_667;
 	
 	private final Environment environment;
 	
 	private Thread renderThread = null;
 	private final Runnable renderRunnable = new Runnable() {
 		public void run() {
+			if (!running) {
+				return;
+			}
+			
+			long startTime = System.nanoTime();
+			long deltaTime = 0;
+			environment.init();
+			
 			while (running) {
-				
-				long startTime = System.nanoTime();
-				
 				// tick
-				environment.tick();
+				environment.tick(startTime, deltaTime);
 				
 				// render
 				BufferStrategy bs = getBufferStrategy();
@@ -48,6 +55,10 @@ public class World extends JFrame {
 				long elapsed = System.nanoTime() - startTime;
 				sleep(NANO_DELAY - elapsed);
 				
+				long newTime = System.nanoTime();
+				deltaTime = newTime - startTime;
+				startTime = newTime;
+				
 			}
 		}
 	};
@@ -56,7 +67,7 @@ public class World extends JFrame {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) {	
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				System.setProperty("sun.awt.noerasebackground", "true"); // prevents the background from auto clearing

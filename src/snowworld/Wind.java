@@ -1,3 +1,4 @@
+package snowworld;
 
 public class Wind {
 
@@ -6,12 +7,10 @@ public class Wind {
 	public Wind() {}
 	
 	public void change() {
-		if (Methods.random(0, 30) == 0) {
-			if (Methods.random(0, 2) == 0) {
-				increase();
-			} else {
-				decrease();
-			}
+		if (Methods.random(0, 2) == 0) {
+			increase();
+		} else {
+			decrease();
 		}
 	}
 	
@@ -28,7 +27,7 @@ public class Wind {
 	}
 	
 	public void apply(Flake flake) {
-		flake.x += (velocity / flake.getWidth());
+		flake.setX(flake.getX() + (velocity / flake.getWidth()));
 	}
 	
 }
