@@ -43,10 +43,6 @@ public class Flake implements Tickable, Renderable {
 		return this.shape.width;
 	}
 	
-	public void tick() {
-		this.shape.y += vel;
-	}
-	
 	public double area(double x1, double x2) {
 		double radius = this.shape.width / 2.0D;
 		if (x1 > x2) {
@@ -59,27 +55,23 @@ public class Flake implements Tickable, Renderable {
 		return integral(x2, radius) - integral(x1, radius);
 	}
 	
-	private static double integral(double x, double radius) {
-		double rM = radius * radius;
-		double sqrt = Math.sqrt(rM - x * x);
-		return (x * sqrt) + (rM * Math.atan(x / sqrt));
-	}
-
 	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void init() {}
 
 	@Override
 	public void tick(long currentTime, long deltaTime) {
-		// TODO Auto-generated method stub
-		
+		this.shape.y += vel;
 	}
 	
 	@Override
 	public void render(Graphics2D g) {
-		
+		g.fill(this.shape);
+	}
+	
+	private static double integral(double x, double radius) {
+		double rM = radius * radius;
+		double sqrt = Math.sqrt(rM - x * x);
+		return (x * sqrt) + (rM * Math.atan(x / sqrt));
 	}
 	
 }

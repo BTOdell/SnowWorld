@@ -9,33 +9,23 @@ import java.util.LinkedList;
 public class Environment implements Tickable, Renderable {
 	
 	private final LinkedList<Flake> flakes;
-	private final TimedEvent flakeEvent = new TimedEvent(new Runnable() {
-		public void run() {
-			flakes.add(new Flake(Environment.this.width));
-		}
-	}, new Function<Long>() {
-		public Long invoke() {
-			return Methods.random(10_000_000L, 50_000_000L);
-		}
-	}, new Function<Long>() {
-		public Long invoke() {
-			return Methods.random(10_000_000L, 50_000_000L);
-		}
+	private final TimedEvent flakeEvent = new TimedEvent(() -> {
+		final Flake newFlake = new Flake(Environment.this.width);
+		newFlake.init();
+		this.flakes.add(newFlake);
+	}, () -> {
+		return Methods.random(20_000_000L, 100_000_000L);
+	}, () -> {
+		return Methods.random(20_000_000L, 100_000_000L);
 	});
 	
 	private final Wind wind;
-	private final TimedEvent windEvent = new TimedEvent(new Runnable() {
-		public void run() {
-			Environment.this.wind.change();
-		}
-	}, new Function<Long>() {
-		public Long invoke() {
-			return Methods.random(10_000_000L, 5_000_000_000L);
-		}
-	}, new Function<Long>() {
-		public Long invoke() {
-			return Methods.random(10_000_000L, 5_000_000_000L);
-		}
+	private final TimedEvent windEvent = new TimedEvent(() -> {
+		Environment.this.wind.change();
+	}, () -> {
+		return Methods.random(10_000_000L, 5_000_000_000L);
+	}, () -> {
+		return Methods.random(10_000_000L, 5_000_000_000L);
 	});
 	
 	private int width = -1;
@@ -44,7 +34,7 @@ public class Environment implements Tickable, Renderable {
 	private GroundData ground = null;
 	
 	public Environment() {
-		this.flakes = new LinkedList<Flake>();
+		this.flakes = new LinkedList<>();
 		this.wind = new Wind();
 	}
 	
@@ -70,7 +60,7 @@ public class Environment implements Tickable, Renderable {
 	@Override
 	public void tick(long currentTime, long deltaTime) {
 		
-		if (ground == null) {
+		if (this.ground == null) {
 			throw new IllegalStateException("GroundData hasn't been initialized yet.");
 		}
 		
@@ -79,20 +69,21 @@ public class Environment implements Tickable, Renderable {
 		this.flakeEvent.tick(currentTime, deltaTime);
 		this.windEvent.tick(currentTime, deltaTime);
 		
-		int collide;
-		Iterator<Flake> it = flakes.iterator();
+		final Iterator<Flake> it = this.flakes.iterator();
 		while (it.hasNext()) {
-			Flake flake = it.next();
-			flake.tick();
-			wind.apply(flake);
-			if ((collide = ground.collidesAt(flake.getX(), flake.getY() + flake.getWidth() / 2.0D)) == 0)
+			final Flake flake = it.next();
+			flake.tick(currentTime, deltaTime);
+			this.wind.apply(flake);
+			final int collide = this.ground.collidesAt(flake.getX(), flake.getY() + flake.getWidth() / 2.0D);
+			if (collide == 0) {
 				continue;
+			}
 			it.remove();
 			if (collide == 1) {
-				ground.add(flake);
+				this.ground.add(flake);
 			}
 		}
-		ground.smoothGround();
+		this.ground.smoothGround();
 		
 	}
 	
@@ -107,17 +98,15 @@ public class Environment implements Tickable, Renderable {
 		//	renderOnce = false;
 		//}
 		g.setColor(Color.WHITE);
-		try {
-			Iterator<Flake> it = flakes.iterator();
-			while (it.hasNext()) {
-				Flake flake = it.next();
-				if (flake != null) {
-					flake.render(g);
-				}
+		final Iterator<Flake> it = this.flakes.iterator();
+		while (it.hasNext()) {
+			Flake flake = it.next();
+			if (flake != null) {
+				flake.render(g);
 			}
-		} catch (Exception e) {}
-		if (ground != null) {
-			ground.render(g);
+		}
+		if (this.ground != null) {
+			this.ground.render(g);
 		}
 	}
 

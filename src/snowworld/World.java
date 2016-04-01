@@ -19,49 +19,11 @@ public class World extends JFrame {
 	
 	public static String VERSION = "3.5";
 	
-	private static final int NANO_DELAY = 100_000_000;//16_666_667;
+	private static final int NANO_DELAY = 16_666_667;//100_000_000;
 	
 	private final Environment environment;
 	
 	private Thread renderThread = null;
-	private final Runnable renderRunnable = new Runnable() {
-		public void run() {
-			if (!running) {
-				return;
-			}
-			
-			long startTime = System.nanoTime();
-			long deltaTime = 0;
-			environment.init();
-			
-			while (running) {
-				// tick
-				environment.tick(startTime, deltaTime);
-				
-				// render
-				BufferStrategy bs = getBufferStrategy();
-				if (bs != null) {
-					Graphics g1 = bs.getDrawGraphics();
-					try {
-						environment.render((Graphics2D) g1);
-					} finally {
-						g1.dispose();
-					}
-					if (!bs.contentsLost()) {
-						bs.show();
-					}
-				}
-				
-				long elapsed = System.nanoTime() - startTime;
-				sleep(NANO_DELAY - elapsed);
-				
-				long newTime = System.nanoTime();
-				deltaTime = newTime - startTime;
-				startTime = newTime;
-				
-			}
-		}
-	};
 	private boolean running = false;
 
 	/**
@@ -85,7 +47,7 @@ public class World extends JFrame {
 		this.environment = new Environment();
 		
 		this.running = true;
-		this.renderThread = new Thread(this.renderRunnable);
+		this.renderThread = new Thread(this::render);
 		this.renderThread.setName("Render Thread");
 		this.renderThread.setPriority(Thread.MAX_PRIORITY);
 		this.renderThread.setDaemon(true);
@@ -137,6 +99,43 @@ public class World extends JFrame {
 	public void paint(Graphics g1) {
 		if (!getIgnoreRepaint()) {
 			super.paint(g1);
+		}
+	}
+	
+	private void render() {
+		if (!this.running) {
+			return;
+		}
+		
+		long startTime = System.nanoTime();
+		long deltaTime = 0;
+		this.environment.init();
+		
+		while (running) {
+			// tick
+			this.environment.tick(startTime, deltaTime);
+			
+			// render
+			BufferStrategy bs = this.getBufferStrategy();
+			if (bs != null) {
+				Graphics g1 = bs.getDrawGraphics();
+				try {
+					this.environment.render((Graphics2D) g1);
+				} finally {
+					g1.dispose();
+				}
+				if (!bs.contentsLost()) {
+					bs.show();
+				}
+			}
+			
+			long elapsed = System.nanoTime() - startTime;
+			sleep(NANO_DELAY - elapsed);
+			
+			long newTime = System.nanoTime();
+			deltaTime = newTime - startTime;
+			startTime = newTime;
+			
 		}
 	}
 	
