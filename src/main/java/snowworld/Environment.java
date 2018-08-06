@@ -54,8 +54,6 @@ public class Environment implements Tickable, Renderable {
 			throw new IllegalStateException("GroundData hasn't been initialized yet.");
 		}
 		
-		System.out.println("Delta Time: " + deltaTime);
-		
 		this.flakeEvent.tick(currentTime, deltaTime);
 		this.windEvent.tick(currentTime, deltaTime);
 		
