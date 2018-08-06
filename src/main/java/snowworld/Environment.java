@@ -8,35 +8,25 @@ import java.util.LinkedList;
 
 public class Environment implements Tickable, Renderable {
 	
-	private final LinkedList<Flake> flakes;
+	private final LinkedList<Flake> flakes = new LinkedList<>();
 	private final TimedEvent flakeEvent = new TimedEvent(() -> {
 		final Flake newFlake = new Flake(Environment.this.width);
 		newFlake.init();
 		this.flakes.add(newFlake);
-	}, () -> {
-		return Methods.random(20_000_000L, 100_000_000L);
-	}, () -> {
-		return Methods.random(20_000_000L, 100_000_000L);
-	});
+	}, () -> Methods.random(20_000_000L, 100_000_000L),
+		() -> Methods.random(20_000_000L, 100_000_000L));
 	
-	private final Wind wind;
-	private final TimedEvent windEvent = new TimedEvent(() -> {
-		Environment.this.wind.change();
-	}, () -> {
-		return Methods.random(10_000_000L, 5_000_000_000L);
-	}, () -> {
-		return Methods.random(10_000_000L, 5_000_000_000L);
-	});
+	private final Wind wind = new Wind();
+	private final TimedEvent windEvent = new TimedEvent(Environment.this.wind::change,
+		() -> Methods.random(10_000_000L, 5_000_000_000L),
+		() -> Methods.random(10_000_000L, 5_000_000_000L));
 	
 	private int width = -1;
 	private int height = -1;
 	
 	private GroundData ground = null;
 	
-	public Environment() {
-		this.flakes = new LinkedList<>();
-		this.wind = new Wind();
-	}
+	public Environment() {}
 	
 	public boolean isSizeSet() {
 		return this.width != -1 && this.height != -1;
@@ -98,13 +88,11 @@ public class Environment implements Tickable, Renderable {
 		//	renderOnce = false;
 		//}
 		g.setColor(Color.WHITE);
-		final Iterator<Flake> it = this.flakes.iterator();
-		while (it.hasNext()) {
-			Flake flake = it.next();
-			if (flake != null) {
-				flake.render(g);
-			}
-		}
+        for (final Flake flake : this.flakes) {
+            if (flake != null) {
+                flake.render(g);
+            }
+        }
 		if (this.ground != null) {
 			this.ground.render(g);
 		}

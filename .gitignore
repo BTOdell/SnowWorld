@@ -1,6 +1,5 @@
+/.idea
+/*.iml
 /.settings
-/out
-/build.jardesc
-/Manifest
-/src.zip
-/bin
+/.classpath
+/.project
