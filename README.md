@@ -1,6 +1,8 @@
 # SnowWorld
 > A full-screen snow simulator.
 
+[![Build Status](https://travis-ci.com/BTOdell/SnowWorld.svg?branch=master)](https://travis-ci.com/BTOdell/SnowWorld)
+
 Developed in 2012 by Bradley Odell as a fun, little graphics program.
 
 ## Features
